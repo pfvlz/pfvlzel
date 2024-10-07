@@ -1,3 +1,7 @@
+"""
+cron: 15 */6 * * *
+new Env('饿了么续期');
+"""
 const {
     getEnvsByName,
     DisableCk,
@@ -115,20 +119,22 @@ async function _0x179175(data, context, options) {
 (async function _0x1f3fe2() {
     const aleo = process.env.ELE_CARME;
     await validateCarmeWithType(aleo, 1);
-    const pragati = await getEnvsByName("elmck");
+    
+    const envNames = ["elmck", "elmqqck", "nczlck"]; // 要续期的变量名称
+    const pragati = [];
+
+    for (const name of envNames) {
+        const envs = await getEnvsByName(name);
+        pragati.push(...envs); // 将所有环境变量的结果合并
+    }
+
     for (let mackala = 0; mackala < pragati.length; mackala++) {
         let athel = pragati[mackala].value;
         if (!athel) {
             console.log(" ❌无效用户信息, 请重新获取ck");
         } else {
             try {
-                var houda = 0;
-                if (pragati[mackala]._id) {
-                    houda = pragati[mackala]._id;
-                }
-                if (pragati[mackala].id) {
-                    houda = pragati[mackala].id;
-                }
+                var houda = pragati[mackala]._id || pragati[mackala].id || 0; // 获取ID
                 athel = athel.replace(/\s/g, "");
                 let lavante = await checkCk(athel, mackala);
                 if (!lavante) {
@@ -171,8 +177,9 @@ async function _0x179175(data, context, options) {
                 console.log(hannelore);
             }
         }
-      await wait(_0x543ec4(1, 3));
+        await wait(_0x543ec4(1, 3));
     }
     process.exit(0);
 }());
+
 
