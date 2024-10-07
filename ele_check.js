@@ -1,7 +1,3 @@
-"""
-cron: 15 */6 * * *
-new Env('饿了么续期');
-"""
 const {
     getEnvsByName,
     DisableCk,
