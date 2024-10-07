@@ -28,7 +28,7 @@ function _0x543ec4(_0x3fdeea, _0x4dabab) {
 }
 
 function reorderCookie(s) {
-    const order = ["cookie2", "sgcookie", "unb", "USERID", "SID", "token", "utdid", "deviceId", "umt", "phone", "pwd"];
+    const order = ["cookie2", "sgcookie", "unb", "USERID", "SID", "token", "utdid", "deviceId", "umt", "loginId", "password"];
     const cookies = s.split(';');
     const cookieDict = {};
 
