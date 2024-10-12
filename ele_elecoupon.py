@@ -298,7 +298,7 @@ class TCS:
             res1 = self.req(api1, data1, "1.0")
             if res1.json()['ret'][0] == "SUCCESS::调用成功":
                 for right_info in res1.json()['data']['data']['rightInfoList']:
-                    if right_info['rightName'] == "20元现金抵扣券":
+                    if right_info['rightName'] == "20元支付红包":
                         self.qgname = right_info['rightName']
                         self.copyId = right_info['rightId']
                         print(f"[{self.name}] 获取ID成功")
