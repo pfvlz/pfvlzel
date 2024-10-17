@@ -24,7 +24,7 @@ function _0x543ec4(_0x3fdeea, _0x4dabab) {
 }
 
 function reorderCookie(s) {
-    const order = ["cookie2", "sgcookie", "unb", "USERID", "SID", "token", "utdid", "deviceId", "umt", "loginId", "password"];
+    const order = ["cookie2", "sgcookie", "unb", "USERID", "SID", "token", "utdid", "deviceId", "umt", "phone", "pwd"];
     const cookies = s.split(';');
     const cookieDict = {};
 
@@ -111,18 +111,33 @@ async function _0x179175(data, context, options) {
     }
 }
 
+// 续期 cookies 的函数，根据给定的变量名称
+async function renewCookies(variableName, mackala, houda, athel, pragati) {
+    let status = await checkCk(athel, variableName);
+    if (!status) {
+        let result = await _0x179175(pragati[mackala], athel);
+        if (result && result.indexOf("刷新成功") !== -1) {
+            await EnableCk(houda);
+            console.log(`第${mackala + 1}账号正常😁`);
+        } else {
+            const response = await DisableCk(houda);
+            if (response.code === 200) {
+                console.log(`第${mackala + 1}账号失效！已🈲用`);
+            } else {
+                console.log(`第${mackala + 1}账号失效！请重新登录！！！😭`);
+            }
+            await invalidCookieNotify(athel, pragati[mackala].remarks);
+        }
+    } else {
+        console.log(`第${mackala + 1}账号${variableName}状态有效！`);
+    }
+}
 
+// 主异步函数
 (async function _0x1f3fe2() {
     const aleo = process.env.ELE_CARME;
     await validateCarmeWithType(aleo, 1);
-    
-    const envNames = ["elmck", "elmqqck", "nczlck"]; // 要续期的变量名称
-    const pragati = [];
-
-    for (const name of envNames) {
-        const envs = await getEnvsByName(name);
-        pragati.push(...envs); // 将所有环境变量的结果合并
-    }
+    const pragati = await getEnvsByName("elmck");
 
     for (let mackala = 0; mackala < pragati.length; mackala++) {
         let athel = pragati[mackala].value;
@@ -130,52 +145,23 @@ async function _0x179175(data, context, options) {
             console.log(" ❌无效用户信息, 请重新获取ck");
         } else {
             try {
-                var houda = pragati[mackala]._id || pragati[mackala].id || 0; // 获取ID
+                var houda = pragati[mackala]._id || pragati[mackala].id || 0; // 获取 _id 或 id
                 athel = athel.replace(/\s/g, "");
-                let lavante = await checkCk(athel, mackala);
-                if (!lavante) {
-                    let deshaune = await _0x179175(pragati[mackala], athel);
-                    if (deshaune && deshaune.indexOf("刷新成功") !== -1) {
-                        await EnableCk(houda);
-                        console.log("第", mackala + 1, "账号正常😁\n");
-                    } else {
-                        const lakeyah = await DisableCk(houda);
-                        if (lakeyah.code === 200) {
-                            console.log("第", mackala + 1, "账号失效！已🈲用");
-                        } else {
-                            console.log("第", mackala + 1, "账号失效！请重新登录！！！😭");
-                        }
-                        await invalidCookieNotify(athel, pragati[mackala].remarks);
-                    }
-                } else {
-                    let amirr = await getUserInfo(athel);
-                    if (!amirr.encryptMobile) {
-                        let rudolphe = await _0x179175(pragati[mackala], athel);
-                        if (rudolphe && rudolphe.indexOf("刷新成功") !== -1) {
-                            await EnableCk(houda);
-                            console.log("第", mackala + 1, "账号正常😁\n");
-                        } else {
-                            const jericca = await DisableCk(houda);
-                            if (jericca.code === 200) {
-                                console.log("第", mackala + 1, "账号失效！已🈲用");
-                            } else {
-                                console.log("第", mackala + 1, "账号失效！请重新登录！！！😭");
-                            }
-                        }
-                        await invalidCookieNotify(athel, pragati[mackala].remarks);
-                    } else {
-                        await _0x179175(pragati[mackala], athel, getCookieMap(athel).get("SID"));
-                        await EnableCk(houda);
-                        console.log("第", mackala + 1, "账号正常🎉🎉\n");
-                    }
-                }
-            } catch (hannelore) {
-                console.log(hannelore);
+
+                // 续期 elmck
+                await renewCookies('elmck', mackala, houda, athel, pragati);
+                
+                // 续期 elmqqck
+                await renewCookies('elmqqck', mackala, houda, athel, pragati);
+                
+                // 续期 nczlck
+                await renewCookies('nczlck', mackala, houda, athel, pragati);
+                
+            } catch (error) {
+                console.log(error);
             }
         }
         await wait(_0x543ec4(1, 3));
     }
     process.exit(0);
 }());
-
-
