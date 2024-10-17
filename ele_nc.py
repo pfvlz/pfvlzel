@@ -1,3 +1,6 @@
+// 饿了么农场
+// cron: 18 1,11,19 * * *
+
 import json
 import os
 import random
