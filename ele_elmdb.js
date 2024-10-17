@@ -1,7 +1,7 @@
 // 饿了么0元夺宝无脑领取版
 // 可环境变量指定SIGN地址:signhost
 // export signhost=''
-// cron: 0 8,20 * * *
+// cron: 6 7,17 * * *
 // 依赖 axios
 
 const $ = new Env('饿了么夺宝');
