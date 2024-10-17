@@ -3,7 +3,7 @@
  * cron: 2 0,8 * * *
  */
 
-const $ = new Env('饿了么助力');
+const $ = new Env('饿了么天天赚现金');
 const {
   sign,
   getToken,
