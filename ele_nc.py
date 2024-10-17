@@ -1,6 +1,8 @@
 // 饿了么农场
 // cron: 18 1,11,19 * * *
 
+const $ = new Env('饿了么夺宝');
+
 import json
 import os
 import random
