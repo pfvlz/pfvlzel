@@ -1,10 +1,8 @@
-/**
-* 饿了么果园种树
-* cron: 18 1,11,19 * * *
- */
-
-
-const $ = new Env('果园种树');
+# -*- coding:utf-8 -*-
+"""
+cron: 18 1,11,19 * * *
+new Env('饿了么果园种树');
+"""
 
 import json
 import os
