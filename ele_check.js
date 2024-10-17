@@ -93,43 +93,52 @@ async function _0x179175(data, context, options) {
             }
 
             let userID = cookieMap.get("USERID");
-            let userEnvironment = await getEnvByUserId(userID);
-
             let successMessage = `${msg}: ${expiryDate}`;
-            console.log(successMessage);
-            return successMessage;
+            console.log(`账号 ${userID} 状态正常，${successMessage}`);
+            return {
+                successMessage,
+                updatedCookies: cookieMap
+            };
         } else {
             if (responseData.message) {
-                console.log(responseData.message);
+                console.log(`账号 ${data._id} 状态无效：${responseData.message}`);
             } else {
-                console.log(response.ret[0]);
+                console.log(`账号 ${data._id} 状态无效：${response.ret[0]}`);
             }
             return null;
         }
     } else {
-        console.log(msg);
+        console.log(`账号 ${data._id} 状态无效：${msg}`);
     }
 }
 
-// 续期 cookies 的函数，根据给定的变量名称
-async function renewCookies(variableName, mackala, houda, athel, pragati) {
-    let status = await checkCk(athel, variableName);
-    if (!status) {
-        let result = await _0x179175(pragati[mackala], athel);
-        if (result && result.indexOf("刷新成功") !== -1) {
+// 续期 cookies 的函数
+async function renewCookies(env, mackala, envName) {
+    const athel = env.value.replace(/\s/g, "");
+    let houda = env._id || env.id || 0;
+
+    let isValid = await checkCk(athel, mackala);
+    if (!isValid) {
+        let result = await _0x179175(env, athel);
+        if (result && result.successMessage.includes("刷新成功")) {
             await EnableCk(houda);
-            console.log(`第${mackala + 1}账号正常😁`);
+            // 显示账号状态及环境变量名称
+            console.log(`第 ${mackala + 1} 账号 (${envName}) 状态正常！`);
+            return result.updatedCookies; // 返回更新后的 cookie
         } else {
             const response = await DisableCk(houda);
             if (response.code === 200) {
-                console.log(`第${mackala + 1}账号失效！已🈲用`);
+                console.log(`第 ${mackala + 1} 账号 (${envName}) 失效！已🈲用`);
             } else {
-                console.log(`第${mackala + 1}账号失效！请重新登录！！！😭`);
+                console.log(`第 ${mackala + 1} 账号 (${envName}) 失效！请重新登录！！！😭`);
             }
-            await invalidCookieNotify(athel, pragati[mackala].remarks);
+            await invalidCookieNotify(athel, env.remarks);
+            return null;
         }
     } else {
-        console.log(`第${mackala + 1}账号${variableName}状态有效！`);
+        // 显示账号状态及环境变量名称
+        console.log(`第 ${mackala + 1} 账号 (${envName}) 状态有效！`);
+        return null;
     }
 }
 
@@ -137,31 +146,19 @@ async function renewCookies(variableName, mackala, houda, athel, pragati) {
 (async function _0x1f3fe2() {
     const aleo = process.env.ELE_CARME;
     await validateCarmeWithType(aleo, 1);
-    const pragati = await getEnvsByName("elmck");
+    
+    // 获取三个变量的环境
+    const envNames = ["elmck", "elmqqck", "nczlck"];
+    
+    for (const envName of envNames) {
+        const envs = await getEnvsByName(envName);
 
-    for (let mackala = 0; mackala < pragati.length; mackala++) {
-        let athel = pragati[mackala].value;
-        if (!athel) {
-            console.log(" ❌无效用户信息, 请重新获取ck");
-        } else {
-            try {
-                var houda = pragati[mackala]._id || pragati[mackala].id || 0; // 获取 _id 或 id
-                athel = athel.replace(/\s/g, "");
-
-                // 续期 elmck
-                await renewCookies('elmck', mackala, houda, athel, pragati);
-                
-                // 续期 elmqqck
-                await renewCookies('elmqqck', mackala, houda, athel, pragati);
-                
-                // 续期 nczlck
-                await renewCookies('nczlck', mackala, houda, athel, pragati);
-                
-            } catch (error) {
-                console.log(error);
-            }
+        for (let mackala = 0; mackala < envs.length; mackala++) {
+            const env = envs[mackala];
+            await renewCookies(env, mackala, envName); // 传递环境变量名称
+            await wait(_0x543ec4(1, 3));
         }
-        await wait(_0x543ec4(1, 3));
     }
+
     process.exit(0);
 }());
