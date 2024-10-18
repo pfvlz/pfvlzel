@@ -1,6 +1,7 @@
 /**
  * @kolikow
  * 变量：elmck: 必填，账号cookie
+ * const $ = new Env('饿了么更新');
  * cron: 0 * * * *
  */
 
