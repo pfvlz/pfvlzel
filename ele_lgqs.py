@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # -*- coding:utf-8 -*-
 """
-cron: 35 */4 * * *
+cron: 55 0,9,18 * * *
 new Env('饿了么光轮蓝骑士');
 """
 import hashlib
