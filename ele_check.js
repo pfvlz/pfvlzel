@@ -3,7 +3,6 @@
  * 变量：elmck: 必填，账号cookie
  * cron: 0 * * * *
  */
-const $ = new Env('饿了么更新');
 
 const {
     getEnvsByName,
