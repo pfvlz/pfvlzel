@@ -1,3 +1,9 @@
+# -*- coding:utf-8 -*-
+"""
+cron: 18 21 * * *
+new Env('饿了么夺宝查询');
+"""
+
 import hashlib
 import os
 import time
