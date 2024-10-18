@@ -1,8 +1,9 @@
+# -*- coding:utf-8 -*-
+"""
+cron: 18 0 * * *
+new Env('饿了么自动删除ck');
+"""
 
-'''
-这个没啥好说的，放青龙运行就行 
-带自动删除  老秦真帅
-'''
 import socket  
 import base64  
 import json  
