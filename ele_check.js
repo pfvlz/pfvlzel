@@ -1,3 +1,9 @@
+# -*- coding:utf-8 -*-
+"""
+cron: 0 * * * *
+new Env('饿了么更新');
+"""
+
 const {
     getEnvsByName,
     DisableCk,
