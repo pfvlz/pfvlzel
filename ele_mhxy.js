@@ -1,8 +1,10 @@
-# -*- coding:utf-8 -*-
-"""
-cron: 2 */5 * * *
-new Env('饿了么梦幻小院');
-"""
+/**
+ * 变量：elmck: 必填，账号cookie，
+ * 定时随意，每天跑一遍就可以
+ * cron: 2 */5 * * *
+*/
+
+
 
 class Env {
     constructor(name) {
