@@ -1,6 +1,8 @@
 /**
- * 饿了么 - 我要当总裁
-*/
+ * @kolikow
+ * 变量：elmck: 必填，账号cookie
+ * cron: 50 7,17 * * *
+ */
 
 const $ = new Env('饿了么-我要当总裁');
 const {
