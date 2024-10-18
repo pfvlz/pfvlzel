@@ -1,9 +1,8 @@
-/**
- * 变量：elmck: 必填，账号cookie
- * cron 2 */5 * * *
- * 需要手动玩到四级才能跑
- */
-// 简单定义一个 Env 对象
+# -*- coding:utf-8 -*-
+"""
+cron: 2 */5 * * *
+new Env('饿了么梦幻小院');
+"""
 
 class Env {
     constructor(name) {
