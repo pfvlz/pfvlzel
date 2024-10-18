@@ -3,7 +3,7 @@
  * 变量：elmck: 必填，账号cookie
  * cron: 11 11,17 * * *
  */
-
+const $ = new Env('饿了么社群签到');
 const request = require("request"),
       {
   getToken,
