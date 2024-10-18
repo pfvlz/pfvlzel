@@ -1,3 +1,9 @@
+/**
+ * @kolikow
+ * 变量：elmck: 必填，账号cookie
+ * cron: 38 5,13,20 * * *
+ */
+
 const $ = new Env('饿了么特级厨师');
 const qs = require("qs");
 const request = require("request");
