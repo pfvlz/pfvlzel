@@ -13,28 +13,33 @@ import requests
 import string
 from urllib.parse import quote
 from concurrent.futures import ThreadPoolExecutor
-
 from requests import RequestException
 
 host = 'https://acs.m.goofish.com'
 
 ck = ''
 
-BLOCKED_PHONE_NUMBERS = ["198****6261","178****7687","188****2732","159****6681", "182****6241", "135****1297", "159****2970", "180****7637", "177****2907", "176****6569", "199****2156", "138****1501", "158****5282", "134****4708", "189****2512"]  # 可以修改为需要屏蔽的手机号列表
+BLOCKED_PHONE_NUMBERS = [
+    "198****6261", "178****7687", "188****2732", "159****6681",
+    "182****6241", "135****1297", "159****2970", "180****7637",
+    "177****2907", "176****6569", "199****2156", "138****1501",
+    "158****5282", "134****4708", "189****2512"
+]  # 可以修改为需要屏蔽的手机号列表
 
 def generate_random_string(length=50):
     return ''.join(random.choices(string.ascii_letters + string.digits, k=length))
 
-
 def get_ck_usid(ck1):
     key_value_pairs = ck1.split(";")
     for pair in key_value_pairs:
-        key, value = pair.split("=")
-        if key == "USERID":
-            return value
-        else:
-            return '账号'
-
+        try:
+            key, value = pair.split("=", 1)  # 限制拆分次数为 1
+            if key == "USERID":
+                return value
+        except ValueError:
+            print(f"❎ 无法解析 cookie 对: {pair}")
+            continue  # 跳过无法解析的条目
+    return '账号'
 
 def tq(txt):
     try:
@@ -42,12 +47,12 @@ def tq(txt):
         pairs = txt.split(";")[:-1]
         ck_json = {}
         for i in pairs:
-            ck_json[i.split("=")[0]] = i.split("=")[1]
+            key, value = i.split("=", 1)
+            ck_json[key] = value
         return ck_json
     except Exception as e:
         print(f'❎Cookie解析错误: {e}')
         return {}
-
 
 def xsign(api, data, uid, sid, wua, v):
     body = {
@@ -65,7 +70,6 @@ def xsign(api, data, uid, sid, wua, v):
 
     try:
         r = requests.post(
-            # "http://110.41.17.62:9999/api/getXSign",
             "http://192.168.1.253:9999/api/getXSign",
             json=body
         )
@@ -78,10 +82,9 @@ def xsign(api, data, uid, sid, wua, v):
         print(f'❎请求签名服务器错误: {e}')
         return None
 
-
 def req(api, data, uid, sid, wua='False', v="1.0"):
     try:
-        if type(data) == dict:
+        if isinstance(data, dict):
             data = json.dumps(data)
         wua = str(wua)
         sign = xsign(api, data, uid, sid, wua, v)
@@ -107,25 +110,20 @@ def req(api, data, uid, sid, wua='False', v="1.0"):
         if 'wua' in sign:
             params["wua"] = sign.get('wua')
 
-        max_retries = 5
-        retries = 0
-        while retries < max_retries:
+        max_retries = 3  # 设置最大重试次数
+        for attempt in range(max_retries):
             try:
                 res = requests.post(url, headers=headers, data=params, timeout=5)
+                res.raise_for_status()  # 检查请求是否成功
                 return res
-            except requests.exceptions.Timeout:
-                print("❎接口请求超时")
-            except requests.exceptions.RequestException as e:
-                print(f"❎请求异常: {e}")
-            retries += 1
-            print(f"❎重试次数: {retries}")
-            if retries >= max_retries:
-                print("❎重试次数上限")
-                return None
-    except Exception as e:
-        print(f'❎请求接口失败: {e}')
+            except RequestException as e:
+                print(f"❎ 第 {attempt + 1} 次请求失败: {e}")
+                continue
+        print("❎ 达到最大重试次数")
         return None
-
+    except Exception as e:
+        print(f'❎ 请求接口失败: {e}')
+        return None
 
 class TYT:
     def __init__(self, cki):
@@ -148,7 +146,6 @@ class TYT:
             if res1.json()['ret'][0] == 'SUCCESS::调用成功':
                 self.name = res1.json()["data"]["encryptMobile"]
                 
-                # 检查手机号是否在屏蔽列表中
                 if self.name in BLOCKED_PHONE_NUMBERS:
                     print(f'[{self.name1}] ❎手机号在屏蔽列表中，跳过账号')
                     return False
@@ -184,7 +181,8 @@ class TYT:
     def gettoken(self):
         api = 'mtop.alsc.playgame.mini.game.dispatch'
         data = json.dumps(
-            {"bizScene": "CAPYBARA", "bizMethod": "login", "bizParam": "{\"gameId\":\"13254\",\"inviterId\":null}",
+            {"bizScene": "CAPYBARA", "bizMethod": "login",
+             "bizParam": "{\"gameId\":\"13254\",\"inviterId\":null}",
              "longitude": "104.09800574183464", "latitude": "30.22990694269538"})
         res = req(api, data, self.uid, self.sid, "1.0")
         if res.json()['ret'][0] == 'SUCCESS::调用成功':
@@ -199,7 +197,6 @@ class TYT:
             print(f'[{self.name1}] ❌获取token失败,原因:{res.text}')
             return False
 
-    # 开始游戏
     def startgame(self):
         api = 'mtop.alsc.playgame.mini.game.dispatch'
         data = json.dumps({"bizScene": "CAPYBARA", "bizMethod": "startGame",
@@ -208,7 +205,6 @@ class TYT:
         res = req(api, data, self.uid, self.sid, "1.0")
         print("助力: " + res.text)
 
-    ## 菜品类型
     def scdisheslx(self):
         api = 'mtop.alsc.playgame.mini.game.dispatch'
         data = json.dumps({"bizScene": "CAPYBARA", "bizMethod": "startGame",
@@ -245,7 +241,6 @@ class TYT:
             logging.exception(f"[{self.name}] ❎请求失败: {str(e)}")
             return None, None, None
 
-    # 上菜
     def scdishes(self):
         api = 'mtop.alsc.playgame.mini.game.dispatch'
         data = json.dumps({"bizScene": "CAPYBARA", "bizMethod": "handFoodOut",
@@ -267,10 +262,9 @@ class TYT:
                 print(f"[{self.name}] ❎上菜失败--{res.json()['ret'][0]}")
                 return None
         except Exception as e:
-            print(f"[{self.name}] ❎2请求失败: {e}")
+            print(f"[{self.name}] ❎请求失败: {e}")
             return None
 
-    # 提交菜品
     def tjdishes(self):
         foodid, foodNum, foodlx = self.scdisheslx()
         if foodlx is None:
@@ -284,8 +278,7 @@ class TYT:
                 data = json.dumps({
                     "bizScene": "CAPYBARA",
                     "bizMethod": "submitFood",
-                    "bizParam": "{\"levelId\":\"1\",\"orderSeatId\":\"CusS1001\",\"foodId\":\"" + foodid + "\",\"foodNum\":\"" + str(
-                        foodlx) + "\",\"gameId\":\"" + str(self.gameId) + "\"}"
+                    "bizParam": "{\"levelId\":\"1\",\"orderSeatId\":\"CusS1001\",\"foodId\":\"" + foodid + "\",\"foodNum\":\"" + str(foodlx) + "\",\"gameId\":\"" + str(self.gameId) + "\"}"
                 })
                 try:
                     res = req(api, data, self.uid, self.sid, "1.0")
@@ -299,11 +292,10 @@ class TYT:
                     else:
                         print(f"[{self.name}] ❎提交菜品失败--{res.json()['ret'][0]}")
                 except Exception as e:
-                    print(f"[{self.name}] ❎1请求失败")
+                    print(f"[{self.name}] ❎请求失败")
             if int(foodNum) >= 10:
                 self.scscdishes()
 
-    # 上传菜品
     def scscdishes(self):
         api = 'mtop.alsc.playgame.mini.game.dispatch'
         data = json.dumps({"bizScene": "CAPYBARA", "bizMethod": "receiveOrderAward",
@@ -311,12 +303,11 @@ class TYT:
         try:
             res = req(api, data, self.uid, self.sid, "1.0")
             if res.json()['ret'][0] == 'SUCCESS::调用成功':
-                # print(res.json())
                 print(f"[{self.name}] ✅上传菜品成功")
             else:
                 print(f"[{self.name}] ❎上传菜品失败--{res.json()['ret'][0]}")
         except Exception as e:
-            print(f"[{self.name}] ❎1请求失败: {e}")
+            print(f"[{self.name}] ❎请求失败: {e}")
 
     def task(self):
         api = 'mtop.alsc.playgame.mini.game.dispatch'
@@ -325,7 +316,7 @@ class TYT:
                            "longitude": "104.09800574183464", "latitude": "30.22990694269538"})
         
         res = req(api, data, self.uid, self.sid, "1.0")
-        print(f"获取任务列表",res.text)
+        print(f"获取任务列表", res.text)
 
         if res.json()['ret'][0] == 'SUCCESS::调用成功':
             self.taskList = json.loads(res.json()["data"]["data"])
@@ -377,18 +368,22 @@ class TYT:
         else:
             print(f"[{self.name}] T003 任务未开始！先做任务")
             return 'T003'
-            
+        
         return True
-    def postTask(self,taskId):
+
+    def postTask(self, taskId):
         api = 'mtop.alsc.playgame.mini.game.dispatch'
-        data = json.dumps({"bizScene": "CAPYBARA", "bizMethod": "finisheTask",
-                           "bizParam": "{\"taskId\":\"" + taskId + "\",\"gameId\":\"" + self.gameId + "\",\"token\":\"" + self.token + "\"}",
-                           "longitude": "104.09800574183464", "latitude": "30.22990694269538"})
+        data = json.dumps({
+            "bizScene": "CAPYBARA",
+            "bizMethod": "finisheTask",
+            "bizParam": "{\"taskId\":\"" + taskId + "\",\"gameId\":\"" + self.gameId + "\",\"token\":\"" + self.token + "\"}",
+            "longitude": "104.09800574183464", 
+            "latitude": "30.22990694269538"
+        })
         
         res = req(api, data, self.uid, self.sid, "1.0")
-        print(f"完成任务{taskId}",res.text)
+        print(f"完成任务{taskId}", res.text)
         if res.json()['ret'][0] == 'SUCCESS::调用成功':
-            # print(res.json())
             nested_data = json.loads(res.json()['data']['data'])
             reward_items = nested_data['data']['rewardItems']
             if reward_items:
@@ -398,39 +393,37 @@ class TYT:
             return False
         return False
 
-
-    def daoju(self,count):
+    def daoju(self, count):
         api = 'mtop.alsc.playgame.mini.game.dispatch'
         bizParam = json.dumps({
-            "levelId":"1",
-            "itemId":f"It100{random.randint(1, 3)}",
-            "removeFoods":{
-                "Food1003":random.randint(1, 10),
-                "Food1002":random.randint(1, 10),
-                "Food1004":random.randint(1, 3)
+            "levelId": "1",
+            "itemId": f"It100{random.randint(1, 3)}",
+            "removeFoods": {
+                "Food1003": random.randint(1, 10),
+                "Food1002": random.randint(1, 10),
+                "Food1004": random.randint(1, 3)
             },
-            "gameId":self.gameId,
-            "token":self.token,
+            "gameId": self.gameId,
+            "token": self.token,
         })
         data = json.dumps({
-            "bizScene":"CAPYBARA",
-            "bizMethod":"useGameProp",
-            "bizParam":bizParam,
+            "bizScene": "CAPYBARA",
+            "bizMethod": "useGameProp",
+            "bizParam": bizParam,
             "longitude": "104.09800574183464", 
             "latitude": "30.22990694269538"
         })
         try:
             res = req(api, data, self.uid, self.sid, "1.0")
-            # print(res.json())
             if json.loads(res.json()['data']['data'])['bizErrorCode'] == 'OK':
                 print(f"[{self.name}] ✅第{count}次使用道具成功！")
-                count = count + 1
+                count += 1
                 return count
             else:
-                print(f'[{self.name}] ❎第{count}次使用道具失败！！！',res.text)
+                print(f"[{self.name}] ❎第{count}次使用道具失败！！！", res.text)
                 return count
         except Exception as e:
-            print(f"[{self.name}] ❎1请求失败，结束使用道具: {e}")
+            print(f"[{self.name}] ❎请求失败，结束使用道具: {e}")
             return 6
 
     def main(self):
@@ -440,7 +433,7 @@ class TYT:
             if checkRes != True:
                 if checkRes == 'T001' or checkRes == 'T002':
                     print(f"----继续游戏----")
-                    while True and self.stop == False:
+                    while not self.stop:
                         self.tjdishes()
 
                     checkRes = self.checkTask()
@@ -451,8 +444,6 @@ class TYT:
                         checkRes = self.checkTask()
             else:
                 print(f"----任务已全部完成----")
-
-
 
 if __name__ == '__main__':
     if 'elmck' in os.environ:
