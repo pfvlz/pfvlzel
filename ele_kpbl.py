@@ -465,7 +465,7 @@ if __name__ == '__main__':
         exit(-1)
     cookies = cookie.split("&")
     print(f"饿了么共获取到 {len(cookies)} 个账号")
-    with ThreadPoolExecutor(max_workers=2) as executor:
+    with ThreadPoolExecutor(max_workers=3) as executor:
         for i, ck in enumerate(cookies):
             print(f"======开始第{i + 1}个账号======")
             executor.submit(TYT(ck).main)
