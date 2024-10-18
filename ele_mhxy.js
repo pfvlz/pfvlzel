@@ -1,9 +1,10 @@
+
 /**
+ * @kolikow
  * 变量：elmck: 必填，账号cookie
- * cron 2 */5 * * *
- * 需要手动玩到四级才能跑
+ * cron: 2 */5 * * *
  */
-// 简单定义一个 Env 对象
+
 class Env {
     constructor(name) {
         this.name = name;
