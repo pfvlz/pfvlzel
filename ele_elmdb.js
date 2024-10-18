@@ -69,7 +69,7 @@ async function runAccountsConcurrently(batchSize, interval) {
 }
 
 // 运行2个账号，每个账号运行间隔12秒
-runAccountsConcurrently(1, 12);
+runAccountsConcurrently(2, 12);
 
 
 // 修改后的获取签名函数
