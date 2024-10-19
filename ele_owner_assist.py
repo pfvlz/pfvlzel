@@ -1,3 +1,9 @@
+# -*- coding:utf-8 -*-
+"""
+cron: 0 0,10,20 * * *
+new Env('饿了么乐园币助力');
+"""
+
 import json
 import os
 import requests
