@@ -11,7 +11,7 @@ response.encoding = 'utf-8'
 txt = response.text
 print(txt)
 
-nczlck = os.environ.get('elmjsbck')
+nczlck = os.environ.get('nczlck')
 
 ck = ''
 
